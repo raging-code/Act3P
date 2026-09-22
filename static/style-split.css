@@ -1,0 +1,202 @@
+/* ==========================================================================
+   Perimeter — "Split-Screen Duel" layer
+   Loaded after style.css. Overrides the menu shell entirely and adds a
+   thin "which side are you on" accent strip to the two dashboards so
+   Fig. 3.1 (green) and Fig. 3.3 (violet) read as continuations of the
+   half the user picked on the menu, rather than two disconnected pages.
+   ========================================================================== */
+
+:root {
+  --split-left:      #7de3a8;
+  --split-left-dim:  rgba(125, 227, 168, 0.14);
+  --split-right:     #c993e8;
+  --split-right-dim: rgba(201, 147, 232, 0.14);
+  --split-font:      'Bricolage Grotesque', var(--grot, sans-serif);
+  --split-mono:      'JetBrains Mono', var(--mono, monospace);
+}
+
+/* ---------- menu: full split-screen shell ---------- */
+
+html, body.split-body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0d0d0e;
+}
+
+.split-screen {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 100vh;
+}
+
+.split-half {
+  flex: 1 1 480px;
+  min-height: 50vh;
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--text, #eee);
+  font-family: var(--split-font);
+  position: relative;
+  transition: flex-grow 0.35s ease, background 0.35s ease;
+}
+.split-half:hover { flex-grow: 1.08; }
+
+.split-half--left  { background: #0f1a14; }
+.split-half--right { background: #150f18; }
+.split-half--left:hover  { background: #12201a; }
+.split-half--right:hover { background: #19121d; }
+
+.split-fig {
+  font-family: var(--split-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+.split-half--left  .split-fig { color: var(--split-left); }
+.split-half--right .split-fig { color: var(--split-right); }
+
+.split-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 22px 0 26px;
+}
+.split-half--left  .split-icon { background: var(--split-left-dim);  color: var(--split-left); }
+.split-half--right .split-icon { background: var(--split-right-dim); color: var(--split-right); }
+
+.split-title {
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 0 0 14px;
+}
+
+.split-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 340px;
+  margin: 0;
+  opacity: 0.72;
+}
+
+.split-stats {
+  display: flex;
+  gap: 24px;
+  margin-top: 30px;
+}
+.split-stats div {
+  font-family: var(--split-mono);
+  font-size: 11px;
+  opacity: 0.55;
+}
+.split-stats b {
+  display: block;
+  font-size: 17px;
+  font-family: var(--split-font);
+  opacity: 1;
+  margin-top: 2px;
+}
+
+.split-cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--split-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  padding: 13px 20px;
+  border-radius: 999px;
+  border: 1px solid;
+  margin-top: 36px;
+}
+.split-half--left  .split-cta { border-color: rgba(125,227,168,0.4); }
+.split-half--right .split-cta { border-color: rgba(201,147,232,0.4); }
+.split-half:hover .split-cta { background: rgba(255,255,255,0.04); }
+
+.split-seam {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent);
+  pointer-events: none;
+}
+.split-seam-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #0d0d0e;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--split-mono);
+  font-size: 11px;
+  color: #888;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .split-seam { left: 0; right: 0; top: 50%; bottom: auto; width: auto; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent); }
+  .split-seam-badge { top: 50%; left: 50%; }
+  .split-half { padding: 48px 28px; }
+}
+
+/* ---------- dashboards: side-identity accent strip ----------
+   Fig. 3.1 (camera) and Fig. 3.3 (buzzer) each get a 3px top accent
+   in their half's color, plus the same accent tinting the arm-toggle
+   and pulse dot, so the dashboard feels like "the other side of the
+   door" you just walked through on the menu. Structural IDs the JS
+   depends on (armToggle, liveFrame, logList, etc.) are untouched —
+   this file only adds paint, never changes markup contracts. */
+
+body[data-split-side] .console {
+  position: relative;
+}
+body[data-split-side] .console::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 5;
+}
+body[data-split-side="left"] .console::before { background: var(--split-left); }
+body[data-split-side="right"] .console::before { background: var(--split-right); }
+
+body[data-split-side="left"] .bar-sub,
+body[data-split-side="left"] #pulse-dot { color: var(--split-left); }
+body[data-split-side="right"] .bar-sub,
+body[data-split-side="right"] #pulse-dot { color: var(--split-right); }
+
+body[data-split-side="left"] #pulse-dot {
+  background: var(--split-left) !important;
+  box-shadow: 0 0 0 4px var(--split-left-dim), 0 0 10px 1px var(--split-left) !important;
+}
+body[data-split-side="right"] #pulse-dot {
+  background: var(--split-right) !important;
+  box-shadow: 0 0 0 4px var(--split-right-dim), 0 0 10px 1px var(--split-right) !important;
+}
+
+body[data-split-side="left"] .arm-toggle[data-armed="true"] {
+  background: linear-gradient(155deg, rgba(125,227,168,0.85), rgba(125,227,168,0.45));
+}
+body[data-split-side="right"] .arm-toggle[data-armed="true"] {
+  background: linear-gradient(155deg, rgba(201,147,232,0.85), rgba(201,147,232,0.45));
+}
+
+body[data-split-side="left"] .back-link:hover { color: var(--split-left); }
+body[data-split-side="right"] .back-link:hover { color: var(--split-right); }
