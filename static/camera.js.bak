@@ -56,8 +56,12 @@ let statusAbort = null;
 
 // Live stream: mark the frame as "has-image" once the MJPEG stream actually
 // loads, and fall back to the empty state if it errors out (e.g. no camera).
-// [patch-redesign.mjs] live feed removed from the page; the load/error
-// listeners that used to flip .has-image on #liveFrame no longer apply.
+el.liveImg.addEventListener("load", () => {
+  el.liveFrame.classList.add("has-image");
+});
+el.liveImg.addEventListener("error", () => {
+  el.liveFrame.classList.remove("has-image");
+});
 
 function tickClock() {
   const now = new Date();
